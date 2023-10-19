@@ -2,7 +2,7 @@
 
 namespace Order.Command.Api.Commands
 {
-    public class ChangeOrderProductCountCommand : BaseCommand
+    public class ChangeProductCountCommand : BaseCommand
     {
         public Guid ProductId { get; set; }
         public uint Count { get; set; }
