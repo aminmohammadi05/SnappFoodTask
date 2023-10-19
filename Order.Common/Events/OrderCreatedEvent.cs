@@ -12,5 +12,7 @@ namespace Order.Common.Events
         public OrderCreatedEvent() : base(nameof(OrderCreatedEvent))
         {
         }
+        public DateTime CreationDate { get; set; }
+        public Guid BuyerId { get; set; }
     }
 }

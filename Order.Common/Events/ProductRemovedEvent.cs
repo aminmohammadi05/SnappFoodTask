@@ -13,5 +13,6 @@ namespace Order.Common.Events
         {
 
         }
+        public Guid ProductId { get; set; }
     }
 }
