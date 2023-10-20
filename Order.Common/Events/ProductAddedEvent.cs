@@ -16,5 +16,9 @@ namespace Order.Common.Events
         public Guid ProductId { get; set; }
         public uint Count { get; set; }
         public DateTime CreationDate { get; set; }
+        public string Title { get; set; }
+        public uint Discount { get; set; }
+        public uint InventoryCount { get; set; }
+        public uint Price { get; set; }
     }
 }
