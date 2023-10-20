@@ -12,7 +12,7 @@ namespace Order.Query.Domain.Entities
     [Table("Order")]
     public class OrderEntity
     {
-        [Key]
+       
         public Guid OrderId { get; set; }
         public Guid BuyerId { get; set; }
         public DateTime CreationDate { get; set; }

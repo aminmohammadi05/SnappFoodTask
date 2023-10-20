@@ -11,7 +11,7 @@ namespace Order.Query.Domain.Entities
     [Table("User")]
     public class UserEntity
     {
-        [Key]
+       
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         

@@ -11,7 +11,7 @@ namespace Order.Query.Domain.Entities
     [Table("Product")]
     public class ProductEntity
     {
-        [Key]
+       
         public Guid ProductId { get; set; }
         public string Title { get; set; }
         public uint InventoryCount { get; set; }

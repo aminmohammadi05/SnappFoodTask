@@ -22,12 +22,18 @@ builder.Services.AddSingleton<DatabaseContextFactory>(new DatabaseContextFactory
 var dataContext = builder.Services.BuildServiceProvider().GetRequiredService<DatabaseContext>();
 dataContext.Database.EnsureCreated();
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "OrderManager";
+});
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IQueryHandler, QueryHandler>();
 builder.Services.AddScoped<IEventHandler, Order.Query.Infrastructure.Handlers.EventHandler>();
 builder.Services.Configure<ConsumerConfig>(builder.Configuration.GetSection(nameof(ConsumerConfig)));
 builder.Services.AddScoped<IEventConsumer, EventConsumer>();
+
 
 // register query handler methods
 var queryHandler = builder.Services.BuildServiceProvider().GetRequiredService<IQueryHandler>();
@@ -39,11 +45,7 @@ dispatcher.RegisterHandler<FindOrdersWithProductsQuery>(queryHandler.HandleAsync
 builder.Services.AddSingleton<IQueryDispatcher<OrderEntity>>(_ => dispatcher);
 
 builder.Services.AddMemoryCache();
-builder.Services.AddStackExchangeRedisCache(options => 
-{
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
-    options.InstanceName = "OrderManager";
-});
+
 
 builder.Services.AddControllers();
 builder.Services.AddHostedService<ConsumerHostedService>();
