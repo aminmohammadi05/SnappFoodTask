@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Order.Query.Domain.Entities
     [Table("User")]
     public class UserEntity
     {
+        [Key]
         public Guid UserId { get; set; }
         public string UserName { get; set; }
         

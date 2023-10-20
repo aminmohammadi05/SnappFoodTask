@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace Order.Query.Domain.Entities
     [Table("Order")]
     public class OrderEntity
     {
+        [Key]
         public Guid OrderId { get; set; }
         public Guid BuyerId { get; set; }
         public DateTime CreationDate { get; set; }
