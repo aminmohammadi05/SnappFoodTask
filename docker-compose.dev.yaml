@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+
+  # UI Container spec. note that 'ui' is the name of the container internally (also 'container_name')
+  ui:
+    container_name: roshanaktehrani-ui-prod
+    image: roshanaktehrani-ui-prod:v1.0.3
+    env_file: ./UI/.env
+    build:
+      context: ./UI
+      dockerfile: DockerFile_UI.prod
+    links:
+      - api
+    ports:
+      - 1337:80
+
+  
+  # API container spec.
+  api:
+    container_name: roshanaktehrani-api
+    image: roshanaktehrani-api:v1.0.21
+    build:
+      context: ./Api
+      dockerfile: DockerFile_API
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:5555
+    ports:
+        - "5555:5555"
+    depends_on:
+      - sql
+    links:
+     - sql
+    volumes:
+     - /root/orchard/App_Data:/app/App_Data
+     - /root/orchard/wwwroot:/app/wwwroot
+
+  # Database Container spec.
+  sql:
+    container_name: roshanaktehrani-sql
+    image: roshanaktehrani-sql:v1.0.4
+    user: root
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'Pa55w0rd<db0562096>'
+      TZ: 'Asia/Tehran'
+    build:
+      context: ./DockerDB
+      dockerfile: DockerFile_SQL
+    ports:
+      - 1633:1433
+#    volumes:
+#      - /root/sqlserver/data:/var/opt/mssql/data
+#      - /root/sqlserver/log:/var/opt/mssql/log
+#      - /root/sqlserver/secrets:/var/opt/mssql/secrets
