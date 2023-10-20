@@ -1,9 +1,13 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
+using CQRS.Core.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Order.Query.Api.Queries;
+using Order.Query.Domain.Entities;
 using Order.Query.Domain.Repositories;
 using Order.Query.Infrastructure.Consumers;
 using Order.Query.Infrastructure.DataAccess;
+using Order.Query.Infrastructure.Dispatchers;
 using Order.Query.Infrastructure.Handlers;
 using Order.Query.Infrastructure.Repositories;
 
@@ -20,9 +24,21 @@ dataContext.Database.EnsureCreated();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IQueryHandler, QueryHandler>();
 builder.Services.AddScoped<IEventHandler, Order.Query.Infrastructure.Handlers.EventHandler>();
 builder.Services.Configure<ConsumerConfig>(builder.Configuration.GetSection(nameof(ConsumerConfig)));
 builder.Services.AddScoped<IEventConsumer, EventConsumer>();
+
+// register query handler methods
+var queryHandler = builder.Services.BuildServiceProvider().GetRequiredService<IQueryHandler>();
+var dispatcher = new QueryDispatcher();
+dispatcher.RegisterHandler<FindAllOrdersQuery>(queryHandler.HandleAsync);
+dispatcher.RegisterHandler<FindOrderByIdQuery>(queryHandler.HandleAsync);
+dispatcher.RegisterHandler<FindOrdersByCriteriaQuery>(queryHandler.HandleAsync);
+dispatcher.RegisterHandler<FindOrdersWithProductsQuery>(queryHandler.HandleAsync);
+builder.Services.AddSingleton<IQueryDispatcher<OrderEntity>>(_ => dispatcher);
+
+
 
 builder.Services.AddControllers();
 builder.Services.AddHostedService<ConsumerHostedService>();
