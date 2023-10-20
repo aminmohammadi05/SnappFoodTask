@@ -38,7 +38,12 @@ dispatcher.RegisterHandler<FindOrdersByCriteriaQuery>(queryHandler.HandleAsync);
 dispatcher.RegisterHandler<FindOrdersWithProductsQuery>(queryHandler.HandleAsync);
 builder.Services.AddSingleton<IQueryDispatcher<OrderEntity>>(_ => dispatcher);
 
-
+builder.Services.AddMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options => 
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "OrderManager";
+});
 
 builder.Services.AddControllers();
 builder.Services.AddHostedService<ConsumerHostedService>();

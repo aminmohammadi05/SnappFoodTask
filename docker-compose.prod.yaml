@@ -10,8 +10,7 @@ services:
       - "zookeeper_data:/bitnami"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-    network:
-     - snappnetwork
+
   kafka:
     image: bitnami/kafka
     ports:
@@ -26,8 +25,19 @@ services:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
     depends_on:
       - zookeeper
-    network:
-     - snappnetwork 
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
   # Database Container spec.
   sql:
     container_name: snapp-food-sql
@@ -42,55 +52,58 @@ services:
       dockerfile: DockerFile_SQL
     ports:
       - 1633:1433
-    network:
-     - snappnetwork
+
     volumes:
       - /root/sqlserver/data:/var/opt/mssql/data
       - /root/sqlserver/log:/var/opt/mssql/log
       - /root/sqlserver/secrets:/var/opt/mssql/secrets
 
-  # Command API container spec.
-  api-command:
-    container_name: snapp-food-api-command
-    image: snapp-food-api:v1.0.34
-    build:
-      context: ./Order.Command.Api
-      dockerfile: Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5555
-    ports:
-      - 5555:5555
-    depends_on:
-      - sql
-    links:
-     - sql
-    network:
-     - snappnetwork
-    volumes:
-     - /root/command-api/App_Data:/app/App_Data
-     - /root/command-api/wwwroot:/app/wwwroot
-  # Query API container spec.
-  api-query:
-    container_name: snapp-food-api-query
-    image: snapp-food-api:v1.0.34
-    build:
-      context: ./Order.Query.Api
-      dockerfile: Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5556
-    ports:
-      - 5555:5556
-    depends_on:
-      - sql
-    links:
-     - sql
-    network:
-     - snappnetwork
-    volumes:
-     - /root/query-api/App_Data:/app/App_Data
-     - /root/query-api/wwwroot:/app/wwwroot
+  # # Command API container spec.
+  # api-command:
+  #   container_name: snapp-food-api-command
+  #   image: snapp-food-api-command:v1.0.35
+  #   build:
+  #     context: ./Order.Command.Api
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ASPNETCORE_URLS: http://+:5555
+  #   ports:
+  #     - 5555:5555
+  #   depends_on:
+  #     - sql
+  #     - kafka
+  #     - redis
+  #   links:
+  #    - sql
+  #    - kafka
+  #    - redis
+  #   volumes:
+  #    - /root/command-api/App_Data:/app/App_Data
+  #    - /root/command-api/wwwroot:/app/wwwroot
+  # # Query API container spec.
+  # api-query:
+  #   container_name: snapp-food-api-query
+  #   image: snapp-food-api-query:v1.0.35
+  #   build:
+  #     context: ./Order.Query.Api
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ASPNETCORE_URLS: http://+:5556
+  #   ports:
+  #     - 5555:5556
+  #   depends_on:
+  #     - sql
+  #     - kafka
+  #     - redis
+  #   links:
+  #    - sql
+  #    - kafka
+  #    - redis
+  #   volumes:
+  #    - /root/query-api/App_Data:/app/App_Data
+  #    - /root/query-api/wwwroot:/app/wwwroot
 volumes:
   zookeeper_data:
     driver: local
