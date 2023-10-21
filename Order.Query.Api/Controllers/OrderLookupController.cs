@@ -1,10 +1,11 @@
 ﻿using CQRS.Core.Infrastructure;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Order.Common.DTOs;
 using Order.Query.Api.DTOs;
-using Order.Query.Api.Queries;
 using Order.Query.Domain.Entities;
+using Order.Query.Infrastructure.Features.Orders.Queries.GetOrdersList;
 
 namespace Order.Query.Api.Controllers
 {
@@ -13,12 +14,14 @@ namespace Order.Query.Api.Controllers
     public class OrderLookupController : ControllerBase
     {
         private readonly ILogger<OrderLookupController> _logger;
+        private readonly IMediator _mediator;
         private readonly IQueryDispatcher<OrderEntity> _queryDispatcher;
 
-        public OrderLookupController(ILogger<OrderLookupController> logger, IQueryDispatcher<OrderEntity> queryDispatcher)
+        public OrderLookupController(ILogger<OrderLookupController> logger, IMediator mediator, IQueryDispatcher<OrderEntity> queryDispatcher)
         {
             _logger = logger;
             _queryDispatcher = queryDispatcher;
+            _mediator = mediator;
         }
 
         [HttpGet]
@@ -26,7 +29,7 @@ namespace Order.Query.Api.Controllers
         {
             try
             {
-                var orders = await _queryDispatcher.SendAsync(new FindAllOrdersQuery());
+                var orders = await _mediator.Send(new GetOrdersListQuery());
                 return NormalResponse(orders);
             }
             catch (Exception ex)
@@ -41,14 +44,14 @@ namespace Order.Query.Api.Controllers
         {
             try
             {
-                var orders = await _queryDispatcher.SendAsync(new FindOrderByIdQuery { Id = orderId });
+                var order = await _mediator.Send(new GetOrderByIdQuery { Id = orderId });
 
-                if (orders == null || !orders.Any())
+                if (order == null )
                     return NoContent();
 
                 return Ok(new OrderLookupResponse
                 {
-                    Orders = orders,
+                    Orders = new List<OrderEntity> { order },
                     Message = "Successfully returned order!"
                 });
             }
@@ -59,12 +62,12 @@ namespace Order.Query.Api.Controllers
             }
         }
 
-        [HttpGet("byAuthor/{author}")]
+        [HttpGet("byBuyer/{buyer}")]
         public async Task<ActionResult> GetOrdersByAuthorAsync(string buyer)
         {
             try
             {
-                var orders = await _queryDispatcher.SendAsync(new FindOrdersByCriteriaQuery { Buyer = buyer });
+                var orders = await _mediator.Send(new GetOrderByBuyerQuery { user = buyer });
                 return NormalResponse(orders);
             }
             catch (Exception ex)
@@ -74,20 +77,7 @@ namespace Order.Query.Api.Controllers
             }
         }
 
-        [HttpGet("withProducts")]
-        public async Task<ActionResult> GetOrdersWithProductsAsync()
-        {
-            try
-            {
-                var orders = await _queryDispatcher.SendAsync(new FindOrdersWithProductsQuery());
-                return NormalResponse(orders);
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "Error while processing request to find orders with products!";
-                return ErrorResponse(ex, SAFE_ERROR_MESSAGE);
-            }
-        }
+        
 
        
 

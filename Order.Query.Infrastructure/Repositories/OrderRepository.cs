@@ -12,40 +12,41 @@ using System.Threading.Tasks;
 
 namespace Order.Query.Infrastructure.Repositories
 {
-    public class OrderRepository : IOrderRepository
+    public class OrderRepository : BaseRepository<OrderEntity>,  IOrderRepository
     {
-        private readonly DatabaseContextFactory _contextFactory;
+        private readonly DatabaseContext _context;
         private readonly IDistributedCache _distCache;
 
-        public OrderRepository(DatabaseContextFactory contextFactory, IDistributedCache distCache)
+        public OrderRepository(DatabaseContext context, IDistributedCache distCache) : base(context)
         {
-            _contextFactory = contextFactory;
+            _context = context;
             _distCache = distCache;
         }
 
-        public async Task CreateAsync(OrderEntity order)
+        public async Task<OrderEntity> CreateAsync(OrderEntity order)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            context.Orders.Add(order);
+           
+            _context.Set<OrderEntity>().Add(order);
 
-            _ = await context.SaveChangesAsync();
+            _ = await _context.SaveChangesAsync();
+            return await _context.Set<OrderEntity>()
+                    .Include(p => p.OrderProducts)
+                    .FirstOrDefaultAsync(x => x.OrderId == order.OrderId);
         }
 
         public async Task DeleteAsync(Guid orderId)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
             var order = await GetByIdAsync(orderId);
 
             if (order == null) return;
 
-            context.Orders.Remove(order);
-            _ = await context.SaveChangesAsync();
+            _context.Set<OrderEntity>().Remove(order);
+            _ = await _context.SaveChangesAsync();
         }
 
         public async Task<OrderEntity> GetByIdAsync(Guid orderId)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            return await context.Orders
+            return await _context.Set<OrderEntity>()
                     .Include(p => p.OrderProducts)
                     .FirstOrDefaultAsync(x => x.OrderId == orderId);
         }
@@ -53,8 +54,7 @@ namespace Order.Query.Infrastructure.Repositories
         public async Task<List<OrderEntity>> ListAllAsync()
         {
             
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            return await context.Orders.AsNoTracking()
+            return await _context.Set<OrderEntity>().AsNoTracking()
                     .Include(p => p.OrderProducts).AsNoTracking()
                     .ToListAsync();
         }
@@ -65,8 +65,7 @@ namespace Order.Query.Infrastructure.Repositories
             var distResult = await _distCache.GetAsync(cacheKey);
             if (distResult == null)
             {
-                using DatabaseContext context = _contextFactory.CreateDbContext();
-                var ordersToSerialize = await context.Orders.AsNoTracking()
+                var ordersToSerialize = await _context.Set<OrderEntity>().AsNoTracking()
                         .Include(p => p.OrderProducts).AsNoTracking()
                         .Where(x => x.Buyer.UserName.Contains(buyer))
                         .ToListAsync();
@@ -88,8 +87,7 @@ namespace Order.Query.Infrastructure.Repositories
 
         public async Task<List<OrderEntity>> ListWithProductsAsync()
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            return await context.Orders.AsNoTracking()
+            return await _context.Set<OrderEntity>().AsNoTracking()
                     .Include(p => p.OrderProducts).AsNoTracking()
                     .Where(x => x.OrderProducts != null && x.OrderProducts.Any())
                     .ToListAsync();
@@ -97,12 +95,14 @@ namespace Order.Query.Infrastructure.Repositories
 
         
 
-        public async Task UpdateAsync(OrderEntity order)
+        public async Task<OrderEntity> UpdateAsync(OrderEntity order)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            context.Orders.Update(order);
+            _context.Set<OrderEntity>().Update(order);
 
-            _ = await context.SaveChangesAsync();
+            _ = await _context.SaveChangesAsync();
+            return await _context.Set<OrderEntity>()
+                    .Include(p => p.OrderProducts)
+                    .FirstOrDefaultAsync(x => x.OrderId == order.OrderId);
         }
     }
 }

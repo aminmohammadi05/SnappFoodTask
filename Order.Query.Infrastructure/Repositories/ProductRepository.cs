@@ -10,53 +10,49 @@ using System.Threading.Tasks;
 
 namespace Order.Query.Infrastructure.Repositories
 {
-    public class ProductRepository : IProductRepository
+    public class ProductRepository : BaseRepository<ProductEntity>, IProductRepository
     {
-        private readonly DatabaseContextFactory _contextFactory;
+        private readonly DatabaseContext _context;
 
-        public ProductRepository(DatabaseContextFactory contextFactory)
+        public ProductRepository(DatabaseContext context): base(context)
         {
-            _contextFactory = contextFactory;
+            _context = context;
         }
 
         public async Task<ProductEntity> CreateAsync(ProductEntity product)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            context.Products.Add(product);
+            
+            _context.Set<ProductEntity>().Add(product);
 
-            _ = await context.SaveChangesAsync();
-            return await context.Products.FirstOrDefaultAsync(x => x.ProductId == product.ProductId);
+            _ = await _context.SaveChangesAsync();
+            return await _context.Set<ProductEntity>().FirstOrDefaultAsync(x => x.ProductId == product.ProductId);
         }
 
         public async Task DeleteAsync(Guid productId)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
             var product = await GetByIdAsync(productId);
 
             if (product == null) return;
 
-            context.Products.Remove(product);
-            _ = await context.SaveChangesAsync();
+            _context.Set<ProductEntity>().Remove(product);
+            _ = await _context.SaveChangesAsync();
         }
 
         public async Task<ProductEntity> GetByIdAsync(Guid productId)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            return await context.Products.FirstOrDefaultAsync(x => x.ProductId == productId);
+            return await _context.Set<ProductEntity>().FirstOrDefaultAsync(x => x.ProductId == productId);
         }
         public async Task<List<ProductEntity>> GetAllAsync()
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            return await context.Products.ToListAsync();
+            return await _context.Set<ProductEntity>().ToListAsync();
         }
 
         public async Task<ProductEntity> UpdateAsync(ProductEntity product)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            context.Products.Update(product);
+            _context.Set<ProductEntity>().Update(product);
 
-            _ = await context.SaveChangesAsync();
-            return await context.Products.FirstOrDefaultAsync(x => x.ProductId == product.ProductId);
+            _ = await _context.SaveChangesAsync();
+            return await _context.Set<ProductEntity>().FirstOrDefaultAsync(x => x.ProductId == product.ProductId);
         }
     }
 }

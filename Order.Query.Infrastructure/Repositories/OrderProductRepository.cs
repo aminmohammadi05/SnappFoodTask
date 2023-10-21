@@ -11,45 +11,41 @@ using System.Threading.Tasks;
 
 namespace Order.Query.Infrastructure.Repositories
 {
-    public class OrderProductRepository : IOrderProductRepository
+    public class OrderProductRepository : BaseRepository<OrderProductEntity>, IOrderProductRepository
     {
-        private readonly DatabaseContextFactory _contextFactory;
+        private readonly DatabaseContext _context;
 
-        public OrderProductRepository(DatabaseContextFactory contextFactory)
+        public OrderProductRepository(DatabaseContext context) : base(context)
         {
-            _contextFactory = contextFactory;
+            _context = context;
         }
 
         public async Task CreateAsync(OrderProductEntity product)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            context.OrderProducts.Add(product);
-            _ = await context.SaveChangesAsync();
+            _context.Set<OrderProductEntity>().Add(product);
+            _ = await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(Guid productId, Guid orderId)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
             var product = await GetByIdAsync(productId, orderId);
 
             if (product == null) return;
 
-            context.OrderProducts.Remove(product);
-            _ = await context.SaveChangesAsync();
+            _context.Set<OrderProductEntity>().Remove(product);
+            _ = await _context.SaveChangesAsync();
         }
 
         public async Task<OrderProductEntity> GetByIdAsync(Guid productId, Guid orderId)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            return await context.OrderProducts.FirstOrDefaultAsync(x => x.ProductId == productId && x.OrderId == orderId);
+            return await _context.Set<OrderProductEntity>().FirstOrDefaultAsync(x => x.ProductId == productId && x.OrderId == orderId);
         }
 
         public async Task UpdateAsync(OrderProductEntity product)
         {
-            using DatabaseContext context = _contextFactory.CreateDbContext();
-            context.OrderProducts.Update(product);
+            _context.Set<OrderProductEntity>().Update(product);
 
-            _ = await context.SaveChangesAsync();
+            _ = await _context.SaveChangesAsync();
         }
     }
 }
