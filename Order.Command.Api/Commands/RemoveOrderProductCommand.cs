@@ -2,7 +2,7 @@
 
 namespace Order.Command.Api.Commands
 {
-    public class RemoveProductCommand : BaseCommand
+    public class RemoveOrderProductCommand : BaseCommand
     {
         public Guid ProductId { get; set; }
         public Guid BuyerId { get; set; }

@@ -46,7 +46,7 @@ namespace Order.Query.Infrastructure.Repositories
         {
             using DatabaseContext context = _contextFactory.CreateDbContext();
             return await context.Orders
-                    .Include(p => p.Products)
+                    .Include(p => p.OrderProducts)
                     .FirstOrDefaultAsync(x => x.OrderId == orderId);
         }
 
@@ -55,7 +55,7 @@ namespace Order.Query.Infrastructure.Repositories
             
             using DatabaseContext context = _contextFactory.CreateDbContext();
             return await context.Orders.AsNoTracking()
-                    .Include(p => p.Products).AsNoTracking()
+                    .Include(p => p.OrderProducts).AsNoTracking()
                     .ToListAsync();
         }
 
@@ -67,7 +67,7 @@ namespace Order.Query.Infrastructure.Repositories
             {
                 using DatabaseContext context = _contextFactory.CreateDbContext();
                 var ordersToSerialize = await context.Orders.AsNoTracking()
-                        .Include(p => p.Products).AsNoTracking()
+                        .Include(p => p.OrderProducts).AsNoTracking()
                         .Where(x => x.Buyer.UserName.Contains(buyer))
                         .ToListAsync();
                 var serialized = JsonSerializer.Serialize(ordersToSerialize, CacheSourceGenerationContext.Default.ListOrderEntity);
@@ -90,8 +90,8 @@ namespace Order.Query.Infrastructure.Repositories
         {
             using DatabaseContext context = _contextFactory.CreateDbContext();
             return await context.Orders.AsNoTracking()
-                    .Include(p => p.Products).AsNoTracking()
-                    .Where(x => x.Products != null && x.Products.Any())
+                    .Include(p => p.OrderProducts).AsNoTracking()
+                    .Where(x => x.OrderProducts != null && x.OrderProducts.Any())
                     .ToListAsync();
         }
 

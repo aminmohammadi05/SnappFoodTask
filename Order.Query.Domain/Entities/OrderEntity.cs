@@ -19,7 +19,7 @@ namespace Order.Query.Domain.Entities
 
         [System.Text.Json.Serialization.JsonIgnore]
         public virtual UserEntity Buyer { get; set; }
-        public virtual ICollection<ProductEntity> Products { get; set; }
+        public virtual ICollection<OrderProductEntity> OrderProducts { get; set; }
     }
     [JsonSerializable(typeof(List<OrderEntity>))]
     public partial class CacheSourceGenerationContext : JsonSerializerContext

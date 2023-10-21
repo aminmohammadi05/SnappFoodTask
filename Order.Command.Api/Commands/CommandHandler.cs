@@ -33,23 +33,31 @@ namespace Order.Command.Api.Commands
             await _eventSourcingHandler.SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(AddProductCommand command)
+        public async Task HandleAsync(AddOrderProductCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
-            aggregate.AddProduct(command.ProductId, command.Count);
+            aggregate.AddProduct(command.ProductId, command.Count, command.InventoryCount, command.CurrentDiscount, command.CurrentPrice);
 
             await _eventSourcingHandler.SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(ChangeProductCountCommand command)
+        public async Task HandleAsync(ModifyInventoryCountCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
-            aggregate.ProductCountChanged(command.ProductId, command.Count);
+            aggregate.ModifyProductCountInInventory(command.ProductId, command.Count);
 
             await _eventSourcingHandler.SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(RemoveProductCommand command)
+        public async Task HandleAsync(ChangeOrderProductCountCommand command)
+        {
+            var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
+            aggregate.ProductCountChanged(command.ProductId, (int)command.Count);
+
+            await _eventSourcingHandler.SaveAsync(aggregate);
+        }
+
+        public async Task HandleAsync(RemoveOrderProductCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
             aggregate.RemoveProduct(command.ProductId);

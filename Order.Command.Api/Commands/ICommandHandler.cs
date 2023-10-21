@@ -5,8 +5,8 @@
         Task HandleAsync(NewOrderCommand command);
         Task HandleAsync(EditOrderCommand command);
         Task HandleAsync(RemoveOrderCommand command);
-        Task HandleAsync(AddProductCommand command);
-        Task HandleAsync(ChangeProductCountCommand command);
-        Task HandleAsync(RemoveProductCommand command);
+        Task HandleAsync(AddOrderProductCommand command);
+        Task HandleAsync(ChangeOrderProductCountCommand command);
+        Task HandleAsync(RemoveOrderProductCommand command);
     }
 }

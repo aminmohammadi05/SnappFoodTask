@@ -19,12 +19,13 @@ namespace Order.Query.Infrastructure.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task CreateAsync(ProductEntity product)
+        public async Task<ProductEntity> CreateAsync(ProductEntity product)
         {
             using DatabaseContext context = _contextFactory.CreateDbContext();
             context.Products.Add(product);
 
             _ = await context.SaveChangesAsync();
+            return await context.Products.FirstOrDefaultAsync(x => x.ProductId == product.ProductId);
         }
 
         public async Task DeleteAsync(Guid productId)
@@ -43,13 +44,19 @@ namespace Order.Query.Infrastructure.Repositories
             using DatabaseContext context = _contextFactory.CreateDbContext();
             return await context.Products.FirstOrDefaultAsync(x => x.ProductId == productId);
         }
+        public async Task<List<ProductEntity>> GetAllAsync()
+        {
+            using DatabaseContext context = _contextFactory.CreateDbContext();
+            return await context.Products.ToListAsync();
+        }
 
-        public async Task UpdateAsync(ProductEntity product)
+        public async Task<ProductEntity> UpdateAsync(ProductEntity product)
         {
             using DatabaseContext context = _contextFactory.CreateDbContext();
             context.Products.Update(product);
 
             _ = await context.SaveChangesAsync();
+            return await context.Products.FirstOrDefaultAsync(x => x.ProductId == product.ProductId);
         }
     }
 }

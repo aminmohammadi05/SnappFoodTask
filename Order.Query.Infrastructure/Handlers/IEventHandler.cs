@@ -11,9 +11,9 @@ namespace Order.Query.Infrastructure.Handlers
     {
         Task On(OrderCreatedEvent @event);
         Task On(OrderUpdatedEvent @event);
-        Task On(ProductAddedEvent @event);
-        Task On(ProductCountChangedEvent @event);
-        Task On(ProductRemovedEvent @event);
+        Task On(OrderProductAddedEvent @event);
+        Task On(OrderProductCountChangedEvent @event);
+        Task On(OrderProductRemovedEvent @event);
         Task On(OrderRemovedEvent @event);
     }
 }

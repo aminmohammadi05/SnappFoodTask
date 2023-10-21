@@ -36,9 +36,9 @@ namespace Order.Query.Infrastructure.Converters
             {
                 nameof(OrderCreatedEvent) => JsonSerializer.Deserialize<OrderCreatedEvent>(json, options),
                 nameof(OrderUpdatedEvent) => JsonSerializer.Deserialize<OrderUpdatedEvent>(json, options),
-                nameof(ProductAddedEvent) => JsonSerializer.Deserialize<ProductAddedEvent>(json, options),
-                nameof(ProductCountChangedEvent) => JsonSerializer.Deserialize<ProductCountChangedEvent>(json, options),
-                nameof(ProductRemovedEvent) => JsonSerializer.Deserialize<ProductRemovedEvent>(json, options),
+                nameof(OrderProductAddedEvent) => JsonSerializer.Deserialize<OrderProductAddedEvent>(json, options),
+                nameof(OrderProductCountChangedEvent) => JsonSerializer.Deserialize<OrderProductCountChangedEvent>(json, options),
+                nameof(OrderProductRemovedEvent) => JsonSerializer.Deserialize<OrderProductRemovedEvent>(json, options),
                 nameof(OrderRemovedEvent) => JsonSerializer.Deserialize<OrderRemovedEvent>(json, options),
                 _ => throw new JsonException($"{typeDiscriminator} is not supported yet!")
             };

@@ -31,9 +31,9 @@ var dispatcher = new CommandDispatcher();
 dispatcher.RegisterHandler<NewOrderCommand>(commandHandler.HandleAsync);
 dispatcher.RegisterHandler<EditOrderCommand>(commandHandler.HandleAsync);
 dispatcher.RegisterHandler<RemoveOrderCommand>(commandHandler.HandleAsync);
-dispatcher.RegisterHandler<AddProductCommand>(commandHandler.HandleAsync);
-dispatcher.RegisterHandler<ChangeProductCountCommand>(commandHandler.HandleAsync);
-dispatcher.RegisterHandler<RemoveProductCommand>(commandHandler.HandleAsync);
+dispatcher.RegisterHandler<AddOrderProductCommand>(commandHandler.HandleAsync);
+dispatcher.RegisterHandler<ChangeOrderProductCountCommand>(commandHandler.HandleAsync);
+dispatcher.RegisterHandler<RemoveOrderProductCommand>(commandHandler.HandleAsync);
 
 builder.Services.AddSingleton<ICommandDispatcher>(_ => dispatcher);
 

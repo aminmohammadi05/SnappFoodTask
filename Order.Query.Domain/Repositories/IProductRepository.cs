@@ -9,9 +9,10 @@ namespace Order.Query.Domain.Repositories
 {
     public interface IProductRepository
     {
-        Task CreateAsync(ProductEntity product);
-        Task UpdateAsync(ProductEntity product);
+        Task<ProductEntity> CreateAsync(ProductEntity product);
+        Task<ProductEntity> UpdateAsync(ProductEntity product);
         Task<ProductEntity> GetByIdAsync(Guid productId);
+        Task<List<ProductEntity>> GetAllAsync();
         Task DeleteAsync(Guid productId);
     }
 }

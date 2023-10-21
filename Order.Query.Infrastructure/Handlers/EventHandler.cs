@@ -1,4 +1,5 @@
-﻿using Order.Common.Events;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Order.Common.Events;
 using Order.Query.Domain.Entities;
 using Order.Query.Domain.Repositories;
 using System;
@@ -13,11 +14,13 @@ namespace Order.Query.Infrastructure.Handlers
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IOrderProductRepository _orderProductRepository;
 
-        public EventHandler(IOrderRepository orderRepository, IProductRepository productRepository)
+        public EventHandler(IOrderRepository orderRepository, IProductRepository productRepository, IOrderProductRepository orderProductRepository)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
+            _orderProductRepository = orderProductRepository;
         }
 
         public async Task On(OrderCreatedEvent @event)
@@ -44,33 +47,43 @@ namespace Order.Query.Infrastructure.Handlers
             await _orderRepository.UpdateAsync(order);
         }
 
-        public async Task On(ProductAddedEvent @event)
+        public async Task On(OrderProductAddedEvent @event)
         {
-            var product = new ProductEntity
+            var productInv = await _productRepository.GetByIdAsync(@event.ProductId);
+
+            if (productInv == null) return;
+            if ((productInv.InventoryCount - @event.Count) < 0) return;
+
+            var product = new OrderProductEntity
             {
                 ProductId = @event.ProductId,
-                Title = @event.Title,
-                Discount = @event.Discount,
-                InventoryCount = @event.InventoryCount,
-                Price = @event.Price
+               CreationDate = @event.CreationDate,
+               Count = @event.Count,
+               CurrentDiscount = @event.CurrentDiscount,
+               CurrentPrice = @event.CurrentPrice,
+               EditDate = @event.EditDate,
+               OrderId = @event.Id,
+               
             };
+            
 
-            await _productRepository.CreateAsync(product);
+            await _orderProductRepository.CreateAsync(product);
         }
 
-        public async Task On(ProductCountChangedEvent @event)
+        public async Task On(OrderProductCountChangedEvent @event)
         {
             var product = await _productRepository.GetByIdAsync(@event.ProductId);
 
             if (product == null) return;
+            if ((product.InventoryCount + @event.Count) < 0) return;
 
-            //product.ProductId = @event.ProductId;
-            //product.Co = true;
+            product.ProductId = @event.ProductId;
+            product.InventoryCount = (uint)(product.InventoryCount + @event.Count) ;
 
             await _productRepository.UpdateAsync(product);
         }
 
-        public async Task On(ProductRemovedEvent @event)
+        public async Task On(OrderProductRemovedEvent @event)
         {
             await _productRepository.DeleteAsync(@event.ProductId);
         }

@@ -16,5 +16,6 @@ namespace Order.Query.Domain.Repositories
         Task<List<OrderEntity>> ListAllAsync();
         Task<List<OrderEntity>> ListByBuyerAsync(string buyer);
         Task<List<OrderEntity>> ListWithProductsAsync();
+        
     }
 }

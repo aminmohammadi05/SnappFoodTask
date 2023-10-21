@@ -9,19 +9,19 @@ namespace Order.Command.Api.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class EditProductController : ControllerBase
+    public class RemoveOrderProductController : ControllerBase
     {
-        private readonly ILogger<EditProductController> _logger;
+        private readonly ILogger<RemoveOrderProductController> _logger;
         private readonly ICommandDispatcher _commandDispatcher;
 
-        public EditProductController(ILogger<EditProductController> logger, ICommandDispatcher commandDispatcher)
+        public RemoveOrderProductController(ILogger<RemoveOrderProductController> logger, ICommandDispatcher commandDispatcher)
         {
             _logger = logger;
             _commandDispatcher = commandDispatcher;
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> EditProductAsync(Guid id, ChangeProductCountCommand command)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> RemoveProductAsync(Guid id, RemoveOrderProductCommand command)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace Order.Command.Api.Controllers
 
                 return Ok(new BaseResponse
                 {
-                    Message = "Changing product count request completed successfully!"
+                    Message = "Remove product request completed successfully!"
                 });
             }
             catch (InvalidOperationException ex)
@@ -51,7 +51,7 @@ namespace Order.Command.Api.Controllers
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "Error while processing request changing the count of a product";
+                const string SAFE_ERROR_MESSAGE = "Error while processing request to remove a product from an order!";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

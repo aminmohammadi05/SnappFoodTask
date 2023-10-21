@@ -14,6 +14,7 @@ namespace Order.Query.Domain.Configurations
         public void Configure(EntityTypeBuilder<ProductEntity> builder)
         {
             builder.HasKey(x => x.ProductId);
+            builder.HasMany(x => x.OrderProducts).WithOne(x => x.Product).HasForeignKey(x => x.ProductId);
 
         }
     }

@@ -17,6 +17,7 @@ namespace Order.Query.Domain.Entities
         public uint InventoryCount { get; set; }
         public uint Price { get; set; }
         public uint Discount { get; set; }
+        public virtual ICollection<OrderProductEntity> OrderProducts { get; set; }
 
     }
 }

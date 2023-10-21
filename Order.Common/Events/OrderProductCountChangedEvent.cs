@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace Order.Common.Events
 {
-    public class ProductRemovedEvent : BaseEvent
+    public class OrderProductCountChangedEvent : BaseEvent
     {
-        public ProductRemovedEvent() : base(nameof(ProductRemovedEvent))
+        public OrderProductCountChangedEvent() : base(nameof(OrderProductCountChangedEvent))
         {
 
         }
         public Guid ProductId { get; set; }
+        public int Count { get; set; }
+        public DateTime EditDate { get; set; }
     }
 }

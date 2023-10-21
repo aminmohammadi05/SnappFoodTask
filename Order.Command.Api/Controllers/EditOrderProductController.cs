@@ -9,28 +9,34 @@ namespace Order.Command.Api.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class NewProductController : ControllerBase
+    public class EditOrderProductController : ControllerBase
     {
-        private readonly ILogger<NewProductController> _logger;
+        private readonly ILogger<EditOrderProductController> _logger;
         private readonly ICommandDispatcher _commandDispatcher;
 
-        public NewProductController(ILogger<NewProductController> logger, ICommandDispatcher commandDispatcher)
+        public EditOrderProductController(ILogger<EditOrderProductController> logger, ICommandDispatcher commandDispatcher)
         {
             _logger = logger;
             _commandDispatcher = commandDispatcher;
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> AddCommentAsync(Guid id, AddProductCommand command)
+        [HttpPut("{id}/{productId}/{count}/{currentPrice}/{currentDiscount}/{inventoryCount}")]
+        public async Task<ActionResult> EditProductAsync(Guid id, Guid productId, uint count, uint currentPrice, uint currentDiscount, uint inventoryCount, ChangeOrderProductCountCommand command)
         {
             try
             {
                 command.Id = id;
+                command.ProductId = productId;
+                command.CurrentPrice = currentPrice;
+                command.CurrentDiscount = currentDiscount;
+                command.CurrentPrice = currentPrice;
+                command.InventoryCount = inventoryCount;
+                command.Count = count;
                 await _commandDispatcher.SendAsync(command);
 
                 return Ok(new BaseResponse
                 {
-                    Message = "Add product request completed successfully!"
+                    Message = "Changing product count request completed successfully!"
                 });
             }
             catch (InvalidOperationException ex)
@@ -51,7 +57,7 @@ namespace Order.Command.Api.Controllers
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "Error while processing request to add a product to an order!";
+                const string SAFE_ERROR_MESSAGE = "Error while processing request changing the count of a product";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -62,4 +68,3 @@ namespace Order.Command.Api.Controllers
         }
     }
 }
-
