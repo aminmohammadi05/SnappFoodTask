@@ -12,10 +12,12 @@ namespace Order.Query.Infrastructure.Features.OrderProducts.Commands
     public class CreateOrderProductCommandHandler : IRequestHandler<CreateOrderProductCommand, CreateOrderProductCommandResponse>
     {
         private readonly IAsyncRepository<OrderProductEntity> _orderRepository;
+        private readonly IAsyncRepository<ProductEntity> _productRepository;
 
-        public CreateOrderProductCommandHandler(IAsyncRepository<OrderProductEntity> orderRepository)
+        public CreateOrderProductCommandHandler(IAsyncRepository<OrderProductEntity> orderRepository, IAsyncRepository<ProductEntity> productRepository)
         {
             _orderRepository = orderRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<CreateOrderProductCommandResponse> Handle(CreateOrderProductCommand request, CancellationToken cancellationToken)
@@ -34,7 +36,8 @@ namespace Order.Query.Infrastructure.Features.OrderProducts.Commands
                     createOrderProductCommandResponse.ValidationErrors.Add(error.ErrorMessage);
                 }
             }
-            if (createOrderProductCommandResponse.Success)
+            ProductEntity product = await _productRepository.GetByIdAsync(request.ProductId);
+            if (createOrderProductCommandResponse.Success && product.InventoryCount > request.Count)
             {
                 var order = new OrderProductEntity()
                 {
@@ -48,6 +51,8 @@ namespace Order.Query.Infrastructure.Features.OrderProducts.Commands
 
                 };
                 order = await _orderRepository.AddAsync(order);
+                product.InventoryCount -= request.Count;
+                await _productRepository.UpdateAsync(product);
                 createOrderProductCommandResponse.OrderProduct = order;
             }
 

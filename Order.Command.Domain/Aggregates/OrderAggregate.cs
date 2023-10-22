@@ -104,12 +104,7 @@ namespace Order.Command.Domain.Aggregates
             {
                 throw new InvalidOperationException($"You cannot add a product with zero price");
             }
-            RaiseEvent(new OrderProductCountChangedInInventoryEvent
-            {
-                Id = _id,
-                ProductId = productId,
-                Count = (int)count * -1
-            });
+            
             RaiseEvent(new OrderProductAddedEvent
             {
                 Id = _id,
